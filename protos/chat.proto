@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package Chat;
+
+service ChatRoomService {
+  rpc Join (stream SendMessageRequest) returns (stream GetMessageResponse);
+}
+
+message SendMessageRequest {
+  string text = 1;
+}
+
+message GetMessageResponse {
+  string user = 1;
+  string text = 2;
+}

@@ -1,0 +1,15 @@
+﻿syntax = "proto3";
+
+package Chat;
+
+service AuthService {
+  rpc Authenticate (AuthRequest) returns (AuthResponse);
+}
+
+message AuthRequest {
+  string userName = 1;
+}
+
+message AuthResponse {
+  string token = 2;
+}

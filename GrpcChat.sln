@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Protos", "Protos", "{AD4741E0-B801-4953-9F31-068C8E116D91}"
+	ProjectSection(SolutionItems) = preProject
+		protos\chat.proto = protos\chat.proto
+		protos\auth.proto = protos\auth.proto
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{3208A3AF-D248-4315-ABF3-6CB698A39D31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleClient", "ConsoleClient\ConsoleClient.csproj", "{7E02C445-0488-400D-981D-E17958910279}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3208A3AF-D248-4315-ABF3-6CB698A39D31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3208A3AF-D248-4315-ABF3-6CB698A39D31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3208A3AF-D248-4315-ABF3-6CB698A39D31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3208A3AF-D248-4315-ABF3-6CB698A39D31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E02C445-0488-400D-981D-E17958910279}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E02C445-0488-400D-981D-E17958910279}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E02C445-0488-400D-981D-E17958910279}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E02C445-0488-400D-981D-E17958910279}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
