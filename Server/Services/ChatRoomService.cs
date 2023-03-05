@@ -18,10 +18,8 @@ public sealed class ChatRoomService : Chat.ChatRoomService.ChatRoomServiceBase
         _userRepository = userRepository;
     }
 
-    public override async Task<JoinResponse> Join(JoinRequest request, ServerCallContext context)
+    public override Task<JoinResponse> Join(JoinRequest request, ServerCallContext context)
     {
-        var cancellationToken = context.CancellationToken;
-    
         var user = new User
         {
             Id = Guid.NewGuid().ToString(),
@@ -34,27 +32,23 @@ public sealed class ChatRoomService : Chat.ChatRoomService.ChatRoomServiceBase
             Token = _jwtGenerator.Generate(user)
         };
 
-        await _userRepository.AddAsync(user, cancellationToken);
+        _userRepository.Add(user);
         
-        return response;
+        return Task.FromResult(response);
     }
 
     [Authorize]
-    public override async Task<Empty> SendMessage(SendMessageRequest request, ServerCallContext context)
+    public override Task<Empty> SendMessage(SendMessageRequest request, ServerCallContext context)
     {
-        var cancellationToken = context.CancellationToken;
-    
         var httpContext = context.GetHttpContext();
         var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Unknown";
 
-        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
+        var user = _userRepository.GetById(userId);
 
         if (user is null)
         {
-            return new Empty();
+            return Task.FromResult(new Empty());
         }
-
-        var allUsers = await _userRepository.GetAllOnlineAsync(cancellationToken);
 
         var response = new GetMessageResponse
         {
@@ -62,12 +56,12 @@ public sealed class ChatRoomService : Chat.ChatRoomService.ChatRoomServiceBase
             Text = request.Text
         };
         
-        foreach (var receiver in allUsers)
+        foreach (var receiver in _userRepository.GetAllOnline())
         {
-            receiver.MessageQueue.Enqueue(response);
+            receiver.SendMessage(response);
         }
 
-        return new Empty();
+        return Task.FromResult(new Empty());
     }
 
     [Authorize]
@@ -78,7 +72,7 @@ public sealed class ChatRoomService : Chat.ChatRoomService.ChatRoomServiceBase
         var httpContext = context.GetHttpContext();
         var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Unknown";
 
-        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
+        var user = _userRepository.GetById(userId);
 
         if (user is null)
         {
@@ -86,7 +80,6 @@ public sealed class ChatRoomService : Chat.ChatRoomService.ChatRoomServiceBase
         }
 
         user.IsOnline = true;
-        await _userRepository.UpdateAsync(user, cancellationToken);
 
         var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
 
@@ -94,7 +87,7 @@ public sealed class ChatRoomService : Chat.ChatRoomService.ChatRoomServiceBase
         {
             while (await timer.WaitForNextTickAsync(cancellationToken))
             {
-                while (user.MessageQueue.TryDequeue(out var message))
+                foreach (var message in user.GetMessages())
                 {
                     await responseStream.WriteAsync(message, cancellationToken);
                 }
@@ -105,6 +98,5 @@ public sealed class ChatRoomService : Chat.ChatRoomService.ChatRoomServiceBase
         }
         
         user.IsOnline = false;
-        await _userRepository.UpdateAsync(user, cancellationToken);
     }
 }
