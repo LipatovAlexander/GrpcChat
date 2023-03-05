@@ -3,7 +3,19 @@ syntax = "proto3";
 package Chat;
 
 service ChatRoomService {
-  rpc Join (stream SendMessageRequest) returns (stream GetMessageResponse);
+  rpc Join (JoinRequest) returns (JoinResponse);
+  rpc SendMessage (SendMessageRequest) returns (Empty);
+  rpc ReceiveMessages (Empty) returns (stream GetMessageResponse);
+}
+
+message Empty {}
+
+message JoinRequest {
+  string user = 1;
+}
+
+message JoinResponse {
+  string token = 1;
 }
 
 message SendMessageRequest {

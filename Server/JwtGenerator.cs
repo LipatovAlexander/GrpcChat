@@ -1,39 +1,33 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Chat;
-using Grpc.Core;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Server.Models;
 
-namespace Server.Services;
+namespace Server;
 
-public sealed class AuthService : Chat.AuthService.AuthServiceBase
+public interface IJwtGenerator
+{
+    string Generate(User user);
+}
+
+public sealed class JwtGenerator : IJwtGenerator
 {
     private readonly JwtSettings _jwtSettings;
 
-    public AuthService(IOptions<JwtSettings> jwtSettings)
+    public JwtGenerator(IOptions<JwtSettings> jwtSettings)
     {
         _jwtSettings = jwtSettings.Value;
     }
 
-    public override Task<AuthResponse> Authenticate(AuthRequest request, ServerCallContext context)
-    {
-        var response = new AuthResponse
-        {
-            Token = GenerateToken(request)
-        };
-        
-        return Task.FromResult(response);
-    }
-    
-    private string GenerateToken(AuthRequest user)
+    public string Generate(User user)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new Claim[]
         {
-            new(ClaimTypes.NameIdentifier, user.UserName)
+            new(ClaimTypes.NameIdentifier, user.Id)
         };
         var token = new JwtSecurityToken(_jwtSettings.Issuer,
             _jwtSettings.Audience,

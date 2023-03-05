@@ -4,6 +4,8 @@ using Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureGrpcWebHosting();
+
 var config = builder.Configuration;
 var services = builder.Services;
 
@@ -22,14 +24,20 @@ services.AddGrpc();
 
 services.AddJwtAuthorization(jwtSettings);
 
-services.AddSingleton<IChatRoom, ChatRoom>();
+services.AddGrpcWebCors();
+
 services.AddSingleton<IUserRepository, UserRepository>();
+services.AddSingleton<IJwtGenerator, JwtGenerator>();
 
 var app = builder.Build();
 
+app.UseGrpcWeb();
+app.UseCors();
+
 app.UseJwtAuthorization();
 
-app.MapGrpcService<ChatRoomService>();
-app.MapGrpcService<AuthService>();
+app.MapGrpcService<ChatRoomService>()
+    .EnableGrpcWeb()
+    .RequireCors("AllowAll");
 
 app.Run();

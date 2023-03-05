@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@protobuf-ts/grpcweb-transport": "^2.8.2",
+    "@protobuf-ts/plugin": "^2.8.2",
+    "@protobuf-ts/runtime": "^2.8.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -20,7 +23,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "generate": "npx protoc --ts_out src/generated/ --ts_opt long_type_string --proto_path ../Protos ../Protos/chat.proto"
   },
   "eslintConfig": {
     "extends": [

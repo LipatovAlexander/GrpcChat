@@ -2,37 +2,33 @@
 using Grpc.Core;
 using Grpc.Net.Client;
 
-using var channel = GrpcChannel.ForAddress("http://localhost:5221/");
+using var channel = GrpcChannel.ForAddress("https://localhost:5001/");
 
-var metadata = await AuthorizeAsync(channel);
+var chatClient = new ChatRoomService.ChatRoomServiceClient(channel);
 
-using var chat = new ChatRoomService.ChatRoomServiceClient(channel).Join(metadata);
+var metadata = await AuthorizeAsync(chatClient);
 
-var responseStream = chat.ResponseStream;
-var requestStream = chat.RequestStream;
+var responseStream = chatClient.ReceiveMessages(new Empty(), metadata).ResponseStream;
 
 _ = ReceiveMessagesAsync(responseStream);
-await SendMessagesAsync(requestStream);
-await chat.RequestStream.CompleteAsync();
+await SendMessagesAsync(chatClient, metadata);
 
-static async Task<Metadata> AuthorizeAsync(ChannelBase channel)
+static async Task<Metadata> AuthorizeAsync(ChatRoomService.ChatRoomServiceClient client)
 {
-    var authClient = new AuthService.AuthServiceClient(channel);
-
     Console.WriteLine("Enter your name:");
 
-    var authRequest = new AuthRequest
+    var authRequest = new JoinRequest
     {
-        UserName = Console.ReadLine()
+        User = Console.ReadLine()
     };
 
-    var authResponse = await authClient.AuthenticateAsync(authRequest);
+    var joinResponse = await client.JoinAsync(authRequest);
 
     Console.Clear();
 
     return new Metadata
     {
-        {"Authorization", $"Bearer {authResponse.Token}"}
+        {"Authorization", $"Bearer {joinResponse.Token}"}
     };
 }
 
@@ -44,7 +40,7 @@ static async Task ReceiveMessagesAsync(IAsyncStreamReader<GetMessageResponse> st
     }
 }
 
-static async Task SendMessagesAsync(IAsyncStreamWriter<SendMessageRequest> stream)
+static async Task SendMessagesAsync(ChatRoomService.ChatRoomServiceClient client, Metadata metadata)
 {
     while (Console.ReadLine() is { } line)
     {
@@ -56,6 +52,6 @@ static async Task SendMessagesAsync(IAsyncStreamWriter<SendMessageRequest> strea
         Console.Write(new string(' ', Console.BufferWidth));
         Console.SetCursorPosition(0, Console.CursorTop);
     
-        await stream.WriteAsync(new SendMessageRequest { Text = line });
+        await client.SendMessageAsync(new SendMessageRequest { Text = line }, metadata);
     }
 }

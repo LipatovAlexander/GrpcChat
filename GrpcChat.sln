@@ -3,7 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Protos", "Protos", "{AD4741E0-B801-4953-9F31-068C8E116D91}"
 	ProjectSection(SolutionItems) = preProject
 		protos\chat.proto = protos\chat.proto
-		protos\auth.proto = protos\auth.proto
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{3208A3AF-D248-4315-ABF3-6CB698A39D31}"
